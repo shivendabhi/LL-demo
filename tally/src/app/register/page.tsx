@@ -59,7 +59,7 @@ export default function Register() {
                 </svg>
               </div>
               <h1 className="font-sans text-2xl font-medium text-gray-900 mb-2">Account created!</h1>
-              <p className="text-gray-600 font-inter">Redirecting to login...</p>
+              <p className="text-gray-700 font-inter">Redirecting to login...</p>
             </div>
           </div>
         </div>
@@ -80,7 +80,7 @@ export default function Register() {
               <h1 className="font-sans text-3xl font-medium text-gray-900 mb-2 tracking-[-0.02em]">
                 Create account
               </h1>
-              <p className="font-inter text-gray-600 text-sm">
+              <p className="font-inter text-gray-700 text-sm">
                 Start managing your inventory today
               </p>
             </div>
@@ -95,7 +95,7 @@ export default function Register() {
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2 font-inter">
+                <label htmlFor="name" className="block text-sm font-medium text-gray-800 mb-2 font-inter">
                   Name (optional)
                 </label>
                 <input
@@ -109,7 +109,7 @@ export default function Register() {
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2 font-inter">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-800 mb-2 font-inter">
                   Email
                 </label>
                 <input
@@ -124,7 +124,7 @@ export default function Register() {
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2 font-inter">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-800 mb-2 font-inter">
                   Password
                 </label>
                 <input
@@ -148,7 +148,7 @@ export default function Register() {
             </form>
 
             {/* Footer */}
-            <p className="text-center text-sm text-gray-600 mt-6 font-inter">
+            <p className="text-center text-sm text-gray-700 mt-6 font-inter">
               Already have an account?{" "}
               <Link href="/login" className="text-[#444EAA] hover:text-[#444EAA]/80 transition-colors font-medium">
                 Sign in

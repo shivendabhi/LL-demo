@@ -30,8 +30,8 @@ export default function QuantityControl({ material, onAdjust }: QuantityControlP
       )}>
         {/* Minus Button */}
         <button
-          onClick={() => onAdjust(material.id, -1)}
-          disabled={material.quantity <= 0}
+          onClick={() => onAdjust(material.id, -material.packSize)}
+          disabled={material.quantity < material.packSize}
           className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-[#444EAA] hover:bg-[#444EAA]/5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border-r border-gray-200"
         >
           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -54,7 +54,7 @@ export default function QuantityControl({ material, onAdjust }: QuantityControlP
 
         {/* Plus Button */}
         <button
-          onClick={() => onAdjust(material.id, 1)}
+          onClick={() => onAdjust(material.id, material.packSize)}
           className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-[#444EAA] hover:bg-[#444EAA]/5 transition-all duration-200 border-l border-gray-200"
         >
           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -63,13 +63,28 @@ export default function QuantityControl({ material, onAdjust }: QuantityControlP
         </button>
       </div>
 
-      {/* Quantity needed box - appears below when needed */}
+      {/* Shortage/surplus box - appears below when there's a requirement */}
       {material.totalRequired && material.totalRequired > 0 && (
-        <div className="bg-yellow-300 border border-yellow-400 border-t-0 rounded-b px-2 py-1 text-center">
-          <div className="text-sm font-medium font-inter text-yellow-900">
-            Need: {material.totalRequired}
-          </div>
-        </div>
+        (() => {
+          const shortage = material.totalRequired - material.quantity;
+          if (shortage > 0) {
+            return (
+              <div className="bg-yellow-300 border border-yellow-400 border-t-0 rounded-b px-2 py-1 text-center">
+                <div className="text-sm font-medium font-inter text-yellow-900">
+                  Short {shortage}
+                </div>
+              </div>
+            );
+          } else {
+            return (
+              <div className="bg-green-200 border border-green-400 border-t-0 rounded-b px-2 py-1 text-center">
+                <div className="text-sm font-medium font-inter text-green-800">
+                  {shortage === 0 ? "Exact" : `+${Math.abs(shortage)} extra`}
+                </div>
+              </div>
+            );
+          }
+        })()
       )}
     </div>
   )

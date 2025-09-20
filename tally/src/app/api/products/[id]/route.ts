@@ -14,44 +14,54 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { delta } = await request.json()
+    const { name, description, price, sku, category } = await request.json()
     const { id } = await params
 
-    if (typeof delta !== 'number') {
-      return NextResponse.json(
-        { error: 'Delta must be a number' },
-        { status: 400 }
-      )
-    }
-
-    // Verify the material belongs to the user
-    const material = await prisma.material.findFirst({
+    // Verify the product belongs to the user
+    const product = await prisma.product.findFirst({
       where: {
         id: id,
         userId: session.user.id
       }
     })
 
-    if (!material) {
+    if (!product) {
       return NextResponse.json(
-        { error: 'Material not found' },
+        { error: 'Product not found' },
         { status: 404 }
       )
     }
 
-    // Update the quantity
-    const updatedMaterial = await prisma.material.update({
+    // Update the product
+    const updatedProduct = await prisma.product.update({
       where: { id: id },
       data: {
-        quantity: Math.max(0, material.quantity + delta) // Ensure quantity doesn't go below 0
+        name,
+        description,
+        price,
+        sku,
+        category,
+        updatedAt: new Date()
+      },
+      include: {
+        productMaterials: {
+          include: {
+            material: true
+          }
+        },
+        productDesigns: {
+          include: {
+            design: true
+          }
+        }
       }
     })
 
-    return NextResponse.json({ material: updatedMaterial })
+    return NextResponse.json({ product: updatedProduct })
   } catch (error) {
-    console.error('Error updating material:', error)
+    console.error('Error updating product:', error)
     return NextResponse.json(
-      { error: 'Failed to update material' },
+      { error: 'Failed to update product' },
       { status: 500 }
     )
   }

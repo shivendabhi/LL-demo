@@ -7,6 +7,7 @@ import Background from "@/components/Background"
 import Sidebar from "@/components/Sidebar"
 import MaterialsPage from "@/components/MaterialsPage"
 import ProductsPage from "@/components/ProductsPage"
+import AddProductPage from "@/components/AddProductPage"
 import FulfillmentPage from "@/components/FulfillmentPage"
 import AddMaterialModal from "@/components/AddMaterialModal"
 import AddOrderModal from "@/components/AddOrderModal"
@@ -188,6 +189,7 @@ export default function Dashboard() {
   const [sidebarHovered, setSidebarHovered] = useState(false)
   const [currentPage, setCurrentPage] = useState<'materials' | 'products' | 'fulfillment'>('materials')
   const [currentView, setCurrentView] = useState<'inventory' | 'orders'>('inventory')
+  const [showAddProduct, setShowAddProduct] = useState(false)
 
   // Create form state
   const [name, setName] = useState("")
@@ -290,6 +292,18 @@ export default function Dashboard() {
     }
   }
 
+  const refreshProducts = async () => {
+    try {
+      const productsRes = await fetch("/api/products")
+      if (productsRes.ok) {
+        const productsData = await productsRes.json()
+        setProducts(productsData.products)
+      }
+    } catch (error) {
+      console.error('Error refreshing products:', error)
+    }
+  }
+
   const resetForm = () => {
     setName("")
     setColor("")
@@ -352,7 +366,6 @@ export default function Dashboard() {
         <Background />
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-[#444EAA]/20 border-t-[#444EAA] rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 font-inter text-lg">Loading your dashboard...</p>
         </div>
       </div>
     )
@@ -439,17 +452,29 @@ export default function Dashboard() {
               />
             )}
 
-            {currentPage === 'products' && (
+            {currentPage === 'products' && !showAddProduct && (
               <ProductsPage
                 products={products}
                 designs={designs}
-                onAddProduct={() => setIsProductModalOpen(true)}
+                onAddProduct={() => setShowAddProduct(true)}
                 onAddDesign={() => setIsDesignModalOpen(true)}
               />
             )}
 
+            {currentPage === 'products' && showAddProduct && (
+              <AddProductPage
+                materials={materials}
+                designs={designs}
+                onBack={() => setShowAddProduct(false)}
+                onProductCreated={refreshProducts}
+              />
+            )}
+
             {currentPage === 'fulfillment' && (
-              <FulfillmentPage />
+              <FulfillmentPage
+                orders={orders}
+                onUpdateOrderStatus={handleUpdateOrderStatus}
+              />
             )}
           </div>
         </main>

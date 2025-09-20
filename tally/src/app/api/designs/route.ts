@@ -51,15 +51,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const {
-      name,
-      description,
-      fileUrl,
-      fileName,
-      fileSize,
-      mimeType,
-      tags
-    } = await request.json()
+    // Handle FormData for file uploads
+    const formData = await request.formData()
+    const file = formData.get('file') as File
+    const name = formData.get('name') as string
+    const description = formData.get('description') as string
+    const tags = formData.get('tags') as string
 
     if (!name) {
       return NextResponse.json(
@@ -68,16 +65,28 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    if (!file) {
+      return NextResponse.json(
+        { error: 'Design file is required' },
+        { status: 400 }
+      )
+    }
+
+    // In production, you would upload the file to a storage service like Supabase Storage, AWS S3, etc.
+    // For now, we'll create a mock file URL and store file metadata
+    const mockFileUrl = `/uploads/designs/${Date.now()}-${file.name}`
+    const parsedTags = tags ? tags.split(',').map(tag => tag.trim()).filter(Boolean) : []
+
     const design = await prisma.design.create({
       data: {
         userId: session.user.id,
         name,
-        description,
-        fileUrl,
-        fileName,
-        fileSize,
-        mimeType,
-        tags: tags ? JSON.stringify(tags) : null
+        description: description || null,
+        fileUrl: mockFileUrl,
+        fileName: file.name,
+        fileSize: file.size,
+        mimeType: file.type,
+        tags: parsedTags.length > 0 ? JSON.stringify(parsedTags) : null
       }
     })
 
