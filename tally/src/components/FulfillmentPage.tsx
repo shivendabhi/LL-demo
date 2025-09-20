@@ -60,32 +60,61 @@ const FULFILLMENT_STAGES = [
 export default function FulfillmentPage({ orders, onUpdateOrderStatus }: FulfillmentPageProps) {
   const [selectedView, setSelectedView] = useState<'pipeline' | 'financial' | 'shipping'>('pipeline')
 
-  // Mock fulfillment data - in a real app this would come from the database
+  // Static fulfillment data that matches integration metrics
   const fulfillmentOrders: FulfillmentOrder[] = useMemo(() => {
-    return orders.map(order => ({
-      ...order,
-      fulfillmentStage: order.status === 'PENDING' ? 'design_approval' :
-                       order.status === 'IN_PROGRESS' ? 'production' :
-                       order.status === 'COMPLETED' ? (['quality_control', 'shipped', 'delivered'][Math.floor(Math.random() * 3)] as any) :
-                       'design_approval',
-      customerEmail: `customer${order.id.slice(-4)}@example.com`,
-      customerAddress: `${Math.floor(Math.random() * 9999)} Main St, City, State ${Math.floor(Math.random() * 99999)}`,
-      invoiceAmount: Math.floor(Math.random() * 200) + 50,
-      productionCost: Math.floor(Math.random() * 50) + 20,
-      shippingCost: Math.floor(Math.random() * 15) + 5,
-      trackingNumber: order.status === 'COMPLETED' ? `1Z${Math.random().toString(36).substring(2, 10).toUpperCase()}` : undefined,
-      shippingCarrier: order.status === 'COMPLETED' ? ['UPS', 'FedEx', 'USPS'][Math.floor(Math.random() * 3)] : undefined,
-      invoiceStatus: ['pending', 'sent', 'paid', 'overdue'][Math.floor(Math.random() * 4)] as any,
-      profitMargin: undefined,
-      estimatedDelivery: order.dueDate || undefined,
-      shippedDate: order.status === 'COMPLETED' ? new Date(Date.now() - Math.random() * 5 * 24 * 60 * 60 * 1000).toISOString() : undefined,
-      deliveredDate: Math.random() > 0.7 ? new Date(Date.now() - Math.random() * 2 * 24 * 60 * 60 * 1000).toISOString() : undefined
-    })).map(order => ({
-      ...order,
-      profitMargin: order.invoiceAmount && order.productionCost && order.shippingCost
-        ? Math.round(((order.invoiceAmount - order.productionCost - order.shippingCost) / order.invoiceAmount) * 100)
-        : undefined
-    }))
+    return orders.map((order, index) => {
+      // Create deterministic values based on order ID
+      const orderHash = order.id.split('').reduce((a, b) => (a + b.charCodeAt(0)) % 1000, 0)
+      const baseAmount = 85 + (orderHash % 120) // Invoice amounts between $85-205
+      const baseCost = 25 + (orderHash % 35) // Production costs between $25-60
+      const shippingCost = 8 + (orderHash % 8) // Shipping costs between $8-16
+
+      // Deterministic fulfillment stages based on order status and hash
+      let fulfillmentStage: FulfillmentOrder['fulfillmentStage']
+      if (order.status === 'PENDING') {
+        fulfillmentStage = 'design_approval'
+      } else if (order.status === 'IN_PROGRESS') {
+        fulfillmentStage = 'production'
+      } else { // COMPLETED
+        const stageOptions: FulfillmentOrder['fulfillmentStage'][] = ['quality_control', 'shipped', 'delivered']
+        fulfillmentStage = stageOptions[orderHash % 3]
+      }
+
+      // Deterministic carrier and tracking
+      const carriers = ['UPS', 'FedEx', 'USPS']
+      const carrier = carriers[orderHash % 3]
+      const trackingNumber = order.status === 'COMPLETED' ? `1Z${orderHash.toString().padStart(8, '0')}` : undefined
+
+      // Deterministic invoice status
+      const invoiceStatuses: FulfillmentOrder['invoiceStatus'][] = ['pending', 'sent', 'paid', 'overdue']
+      const invoiceStatus = invoiceStatuses[orderHash % 4]
+
+      // Fixed dates relative to order creation
+      const orderDate = new Date(order.createdAt)
+      const shippedDate = order.status === 'COMPLETED' ?
+        new Date(orderDate.getTime() + (2 + (orderHash % 3)) * 24 * 60 * 60 * 1000).toISOString() : undefined
+      const deliveredDate = (orderHash % 10 < 7 && order.status === 'COMPLETED') ?
+        new Date(orderDate.getTime() + (5 + (orderHash % 3)) * 24 * 60 * 60 * 1000).toISOString() : undefined
+
+      const profitMargin = Math.round(((baseAmount - baseCost - shippingCost) / baseAmount) * 100)
+
+      return {
+        ...order,
+        fulfillmentStage,
+        customerEmail: `customer${orderHash.toString().padStart(4, '0')}@example.com`,
+        customerAddress: `${2000 + (orderHash % 8000)} Main St, City, State ${10000 + (orderHash % 89999)}`,
+        invoiceAmount: baseAmount,
+        productionCost: baseCost,
+        shippingCost,
+        trackingNumber,
+        shippingCarrier: order.status === 'COMPLETED' ? carrier : undefined,
+        invoiceStatus,
+        profitMargin,
+        estimatedDelivery: order.dueDate || undefined,
+        shippedDate,
+        deliveredDate
+      }
+    })
   }, [orders])
 
   // Group orders by fulfillment stage
@@ -444,7 +473,9 @@ export default function FulfillmentPage({ orders, onUpdateOrderStatus }: Fulfill
                           <span className="text-sm text-gray-500">{carrierOrders.length} orders</span>
                         </div>
                         <div className="text-sm text-gray-600">
-                          Avg cost: ${carrierOrders.reduce((sum, o) => sum + (o.shippingCost || 0), 0) / (carrierOrders.length || 1)}
+                          Avg cost: ${carrierOrders.length > 0 ?
+                            Math.round(carrierOrders.reduce((sum, o) => sum + (o.shippingCost || 0), 0) / carrierOrders.length) :
+                            0}
                         </div>
                       </div>
                     )

@@ -9,6 +9,7 @@ import MaterialsPage from "@/components/MaterialsPage"
 import ProductsPage from "@/components/ProductsPage"
 import AddProductPage from "@/components/AddProductPage"
 import FulfillmentPage from "@/components/FulfillmentPage"
+import IntegrationsPage from "@/components/IntegrationsPage"
 import AddMaterialModal from "@/components/AddMaterialModal"
 import AddOrderModal from "@/components/AddOrderModal"
 import type { Material, Order, OrderItem, Product, ProductMaterial, ProductDesign, Design } from "@/types"
@@ -187,7 +188,7 @@ export default function Dashboard() {
   const [isProductModalOpen, setIsProductModalOpen] = useState(false)
   const [isDesignModalOpen, setIsDesignModalOpen] = useState(false)
   const [sidebarHovered, setSidebarHovered] = useState(false)
-  const [currentPage, setCurrentPage] = useState<'materials' | 'products' | 'fulfillment'>('materials')
+  const [currentPage, setCurrentPage] = useState<'materials' | 'products' | 'fulfillment' | 'integrations'>('materials')
   const [currentView, setCurrentView] = useState<'inventory' | 'orders'>('inventory')
   const [showAddProduct, setShowAddProduct] = useState(false)
 
@@ -423,7 +424,10 @@ export default function Dashboard() {
         <Sidebar
           session={session}
           currentPage={currentPage}
-          onPageChange={setCurrentPage}
+          onPageChange={(page) => {
+            setCurrentPage(page)
+            setShowAddProduct(false) // Reset add product mode when changing pages
+          }}
           isHovered={sidebarHovered}
           onHover={setSidebarHovered}
         />
@@ -474,6 +478,13 @@ export default function Dashboard() {
               <FulfillmentPage
                 orders={orders}
                 onUpdateOrderStatus={handleUpdateOrderStatus}
+              />
+            )}
+
+            {currentPage === 'integrations' && (
+              <IntegrationsPage
+                orders={orders}
+                products={products}
               />
             )}
           </div>

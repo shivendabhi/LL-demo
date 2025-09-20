@@ -13,8 +13,8 @@ interface NavigationItem {
 
 interface SidebarProps {
   session: Session
-  currentPage: 'materials' | 'products' | 'fulfillment'
-  onPageChange: (page: 'materials' | 'products' | 'fulfillment') => void
+  currentPage: 'materials' | 'products' | 'fulfillment' | 'integrations'
+  onPageChange: (page: 'materials' | 'products' | 'fulfillment' | 'integrations') => void
   isHovered: boolean
   onHover: (hovered: boolean) => void
 }
@@ -128,9 +128,10 @@ export default function Sidebar({ session, currentPage, onPageChange, isHovered,
         {integrationItems.map((item) => (
           <button
             key={item.label}
+            onClick={() => onPageChange('integrations')}
             className={classNames(
               "w-full flex items-center px-2 py-2 rounded transition-colors duration-300 ease-out group",
-              item.active
+              currentPage === 'integrations'
                 ? "bg-[#444EAA]/10 text-[#444EAA] shadow-sm"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
             )}
