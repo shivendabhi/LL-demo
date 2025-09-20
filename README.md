@@ -1,6 +1,7 @@
 # Tally
 
 A comprehensive inventory and order management platform built for print-on-demand businesses.
+<img width="3783" height="1979" alt="image" src="https://github.com/user-attachments/assets/3ae985c1-fb5c-4216-82a3-b87c82ae4d59" />
 
 ## Overview
 
