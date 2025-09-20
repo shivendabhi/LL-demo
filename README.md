@@ -1,6 +1,9 @@
 # Tally
 
-A comprehensive inventory and order management platform built for print-on-demand businesses.
+A comprehensive inventory and order management platform built for print-on-demand businesses. Try it out at https://ll-demo@vercel.app
+Sign in with:
+- email:shiven.dabhi@skiff.com
+- pw: password132
 <img width="3783" height="1979" alt="image" src="https://github.com/user-attachments/assets/3ae985c1-fb5c-4216-82a3-b87c82ae4d59" />
 
 ## Overview
