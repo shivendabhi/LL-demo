@@ -27,7 +27,7 @@ Tally streamlines the entire POD workflow from material tracking to order fulfil
 - Shipping management with carrier integration
 - Invoice generation and payment status tracking
 
-### Integrations
+### Integrations(Simulated)
 - **Sales Channels**: Shopify, Etsy, Amazon, WooCommerce
 - **Print Providers**: Printful, Printify, Gooten
 - **Design Tools**: Canva, Adobe Creative Cloud, Google Drive
@@ -35,14 +35,13 @@ Tally streamlines the entire POD workflow from material tracking to order fulfil
 
 ## Tech Stack
 
-- **Frontend**: Next.js 15, React 19, TypeScript
-- **Styling**: Tailwind CSS 4
-- **Authentication**: NextAuth.js
+- **Frontend**: Next.js, React, TypeScript
+- **Styling**: Tailwind CSS
+- **Authentication**: Auth.js
 - **Database**: Prisma ORM + Supabase
-- **Deployment**: Optimized for Vercel
+- **Deployment**: Vercel
 
 ## Getting Started
-
 ### Installation
 
 ```bash
@@ -50,8 +49,19 @@ Tally streamlines the entire POD workflow from material tracking to order fulfil
 git clone [repository-url]
 cd tally
 
+Create a `.env.local` file with the following variables:
+
+```env
+# Database
+DATABASE_URL="postgresql://username:password@localhost:5432/tally"
+NEXTAUTH_SECRET="your-secret-key"
+NEXTAUTH_URL="http://localhost:3000"
+DIRECT_URL=""
+
 # Install dependencies
 npm install
+
+npx prisma generate && npx prisma db push
 
 # Set up environment variables
 cp .env.example .env.local
@@ -63,13 +73,4 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) to access the application.
 
-### Environment Variables
 
-Create a `.env.local` file with the following variables:
-
-```env
-# Database
-DATABASE_URL="postgresql://username:password@localhost:5432/tally"
-NEXTAUTH_SECRET="your-secret-key"
-NEXTAUTH_URL="http://localhost:3000"
-DIRECT_URL=""
