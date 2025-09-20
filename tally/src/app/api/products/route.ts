@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions)
 
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
 
     // Validate materials exist and belong to user
     if (materials && materials.length > 0) {
-      const materialIds = materials.map((m: any) => m.materialId)
+      const materialIds = materials.map((m: { materialId: string; quantityRequired: number; notes?: string }) => m.materialId)
       const userMaterials = await prisma.material.findMany({
         where: {
           id: { in: materialIds },
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
 
     // Validate designs exist and belong to user
     if (designs && designs.length > 0) {
-      const designIds = designs.map((d: any) => d.designId)
+      const designIds = designs.map((d: { designId: string; placement?: string; sizeInfo?: string; notes?: string }) => d.designId)
       const userDesigns = await prisma.design.findMany({
         where: {
           id: { in: designIds },
@@ -133,14 +133,14 @@ export async function POST(request: NextRequest) {
         sku,
         category,
         productMaterials: materials ? {
-          create: materials.map((m: any) => ({
+          create: materials.map((m: { materialId: string; quantityRequired: number; notes?: string }) => ({
             materialId: m.materialId,
             quantityRequired: m.quantityRequired,
             notes: m.notes
           }))
         } : undefined,
         productDesigns: designs ? {
-          create: designs.map((d: any) => ({
+          create: designs.map((d: { designId: string; placement?: string; sizeInfo?: string; notes?: string }) => ({
             designId: d.designId,
             placement: d.placement,
             sizeInfo: d.sizeInfo,

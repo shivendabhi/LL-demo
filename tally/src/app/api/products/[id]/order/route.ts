@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -15,6 +15,7 @@ export async function POST(
     }
 
     const { quantity, orderName, dueDate, priority } = await request.json()
+    const { id } = await params
 
     if (!quantity || quantity <= 0) {
       return NextResponse.json(
@@ -26,7 +27,7 @@ export async function POST(
     // Get the product with its materials
     const product = await prisma.product.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id
       },
       include: {

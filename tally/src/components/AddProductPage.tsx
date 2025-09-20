@@ -36,7 +36,7 @@ export default function AddProductPage({ materials, designs, onBack, onProductCr
     setSelectedMaterials(selectedMaterials.filter((_, i) => i !== index))
   }
 
-  const updateMaterial = (index: number, field: string, value: any) => {
+  const updateMaterial = (index: number, field: string, value: string | number) => {
     const updated = [...selectedMaterials]
     updated[index] = { ...updated[index], [field]: value }
     setSelectedMaterials(updated)
@@ -52,7 +52,7 @@ export default function AddProductPage({ materials, designs, onBack, onProductCr
     setSelectedDesigns(selectedDesigns.filter((_, i) => i !== index))
   }
 
-  const updateDesign = (index: number, field: string, value: any) => {
+  const updateDesign = (index: number, field: string, value: string) => {
     const updated = [...selectedDesigns]
     updated[index] = { ...updated[index], [field]: value }
     setSelectedDesigns(updated)
@@ -243,7 +243,7 @@ export default function AddProductPage({ materials, designs, onBack, onProductCr
                         </svg>
                       </div>
                       <p className="text-gray-600 text-sm">No materials added yet</p>
-                      <p className="text-gray-500 text-xs mt-1">Add materials to specify what's needed to make this product</p>
+                      <p className="text-gray-500 text-xs mt-1">Add materials to specify what&apos;s needed to make this product</p>
                     </div>
                   ) : (
                     <div className="space-y-4">

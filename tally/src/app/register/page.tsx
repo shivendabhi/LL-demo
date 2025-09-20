@@ -48,7 +48,7 @@ export default function Register() {
 
   if (success) {
     return (
-      <div className="h-screen w-screen bg-white relative overflow-hidden flex items-center justify-center" style={{selection: 'rgba(68, 78, 170, 0.15)'}}>
+      <div className="h-screen w-screen bg-white relative overflow-hidden flex items-center justify-center">
         <Background />
         <div className="max-w-md mx-auto w-full px-6">
           <div className="bg-white/90 backdrop-blur-2xl border border-green-200 rounded-3xl p-8 shadow-[0_8px_32px_rgba(34,197,94,0.15)]">
@@ -68,7 +68,7 @@ export default function Register() {
   }
 
   return (
-    <div className="h-screen w-screen bg-white relative overflow-hidden" style={{selection: 'rgba(68, 78, 170, 0.15)'}}>
+    <div className="h-screen w-screen bg-white relative overflow-hidden" style={{'--selection': 'rgba(68, 78, 170, 0.15)'} as React.CSSProperties}>
       <Background />
 
       <main className="flex items-center justify-center h-full px-6">

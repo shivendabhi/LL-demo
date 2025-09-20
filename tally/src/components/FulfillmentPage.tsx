@@ -57,12 +57,12 @@ const FULFILLMENT_STAGES = [
   }
 ]
 
-export default function FulfillmentPage({ orders, onUpdateOrderStatus }: FulfillmentPageProps) {
+export default function FulfillmentPage({ orders }: FulfillmentPageProps) {
   const [selectedView, setSelectedView] = useState<'pipeline' | 'financial' | 'shipping'>('pipeline')
 
   // Static fulfillment data that matches integration metrics
   const fulfillmentOrders: FulfillmentOrder[] = useMemo(() => {
-    return orders.map((order, index) => {
+    return orders.map((order) => {
       // Create deterministic values based on order ID
       const orderHash = order.id.split('').reduce((a, b) => (a + b.charCodeAt(0)) % 1000, 0)
       const baseAmount = 85 + (orderHash % 120) // Invoice amounts between $85-205
@@ -145,10 +145,6 @@ export default function FulfillmentPage({ orders, onUpdateOrderStatus }: Fulfill
     }
   }, [fulfillmentOrders])
 
-  const getStageColor = (stage: string) => {
-    const stageConfig = FULFILLMENT_STAGES.find(s => s.key === stage)
-    return stageConfig?.color || 'gray'
-  }
 
   const getInvoiceStatusColor = (status: string) => {
     switch (status) {
@@ -188,7 +184,7 @@ export default function FulfillmentPage({ orders, onUpdateOrderStatus }: Fulfill
             ].map(view => (
               <button
                 key={view.key}
-                onClick={() => setSelectedView(view.key as any)}
+                onClick={() => setSelectedView(view.key as 'pipeline' | 'financial' | 'shipping')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center space-x-2 ${
                   selectedView === view.key
                     ? 'bg-white text-gray-900 shadow-sm'
@@ -547,7 +543,7 @@ export default function FulfillmentPage({ orders, onUpdateOrderStatus }: Fulfill
                       </svg>
                     </div>
                     <h3 className="font-sans text-lg font-medium text-gray-900 mb-2">No shipments yet</h3>
-                    <p className="text-gray-700 text-sm">Orders will appear here once they're shipped to customers</p>
+                    <p className="text-gray-700 text-sm">Orders will appear here once they&apos;re shipped to customers</p>
                   </div>
                 )}
               </div>

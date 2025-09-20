@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import QuantityControl from './QuantityControl'
 import type { Material } from '@/types'
 
@@ -58,7 +59,7 @@ export default function InventoryView({
               }
             </p>
             <p className="text-sm text-gray-500">
-              Try adjusting your search or filters to find what you're looking for
+              Try adjusting your search or filters to find what you&apos;re looking for
             </p>
           </>
         ) : (
@@ -91,7 +92,7 @@ export default function InventoryView({
                 Showing {filteredCount} of {totalMaterials} materials
                 {searchQuery && (
                   <>
-                    {' '}matching "<span className="font-medium text-gray-900">{searchQuery}</span>"
+                    {' '}matching &ldquo;<span className="font-medium text-gray-900">{searchQuery}</span>&rdquo;
                   </>
                 )}
               </span>
@@ -101,15 +102,17 @@ export default function InventoryView({
       )}
 
       <div className="divide-y divide-[#444EAA]/10">
-      {Object.entries(grouped).map(([key, items], gi) => (
+      {Object.entries(grouped).map(([key, items]) => (
         <div key={key} className="p-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-br from-[#444EAA]/10 to-purple-100 rounded flex items-center justify-center p-2">
-                <img
+                <Image
                   src={getProductIcon(items[0].name)}
                   alt={items[0].name}
-                  className="w-full h-full object-contain"
+                  width={40}
+                  height={40}
+                  className="object-contain"
                 />
               </div>
               <div>

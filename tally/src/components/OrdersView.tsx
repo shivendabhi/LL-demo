@@ -1,5 +1,5 @@
 import OrderCard from './OrderCard'
-import type { Material, Order } from '@/types'
+import type { Order } from '@/types'
 
 
 interface OrdersViewProps {

@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { signOut } from "next-auth/react"
 import { Session } from "next-auth"
 
@@ -25,10 +26,12 @@ export default function Sidebar({ session, currentPage, onPageChange, isHovered,
       label: "Materials",
       key: "materials",
       icon: (
-        <img
+        <Image
           src="/materials.png"
           alt="Materials"
-          className="w-5 h-5 object-contain"
+          width={20}
+          height={20}
+          className="object-contain"
         />
       )
     },
@@ -36,10 +39,12 @@ export default function Sidebar({ session, currentPage, onPageChange, isHovered,
       label: "Products",
       key: "products",
       icon: (
-        <img
+        <Image
           src="/products.png"
           alt="Products"
-          className="w-5 h-5 object-contain"
+          width={20}
+          height={20}
+          className="object-contain"
         />
       )
     },
@@ -47,10 +52,12 @@ export default function Sidebar({ session, currentPage, onPageChange, isHovered,
       label: "Fulfillment",
       key: "fulfillment",
       icon: (
-        <img
+        <Image
           src="/fulfillment.png"
           alt="Fulfillment"
-          className="w-5 h-5 object-contain"
+          width={20}
+          height={20}
+          className="object-contain"
         />
       )
     },
@@ -61,10 +68,12 @@ export default function Sidebar({ session, currentPage, onPageChange, isHovered,
       label: "Integrations",
       active: false,
       icon: (
-        <img
+        <Image
           src="/integrations.png"
           alt="Integrations"
-          className="w-5 h-5 object-contain"
+          width={20}
+          height={20}
+          className="object-contain"
         />
       )
     },
@@ -84,10 +93,12 @@ export default function Sidebar({ session, currentPage, onPageChange, isHovered,
         "flex items-center transition-all duration-500 ease-out p-3 mb-0",
         isHovered ? "px-2" : "justify-center"
       )}>
-        <img
+        <Image
           src="/logo.png"
           alt="Tally Logo"
-          className="w-6 h-6 flex-shrink-0"
+          width={24}
+          height={24}
+          className="flex-shrink-0"
         />
         <span className={classNames(
           "ml-2 font-sans text-lg font-medium text-[#444EAA] tracking-[-0.01em] transition-all duration-500 ease-out whitespace-nowrap overflow-hidden",

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Image from 'next/image'
 import Breadcrumb from './Breadcrumb'
 import type { Order, Product } from '@/types'
 
@@ -89,7 +90,7 @@ export default function IntegrationsPage({ orders, products }: IntegrationsPageP
     }, 0)
   }
 
-  const todayRevenue = calculateRevenue(todayOrders)
+  // const todayRevenue = calculateRevenue(todayOrders)
   const monthlyRevenue = calculateRevenue(last30DaysOrders)
 
   // Calculate average shipping time (static calculation)
@@ -451,10 +452,12 @@ export default function IntegrationsPage({ orders, products }: IntegrationsPageP
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center relative">
-                    <img
+                    <Image
                       src={integration.logo}
                       alt={integration.name}
-                      className="w-8 h-8 object-contain"
+                      width={32}
+                      height={32}
+                      className="object-contain"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement
                         target.style.display = 'none'
@@ -676,7 +679,7 @@ export default function IntegrationsPage({ orders, products }: IntegrationsPageP
               <p className="text-gray-600 mb-4">{selectedIntegration.description}</p>
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                <h4 className="font-medium text-blue-900 mb-2">What you'll get:</h4>
+                <h4 className="font-medium text-blue-900 mb-2">What you&apos;ll get:</h4>
                 <ul className="text-sm text-blue-800 space-y-1">
                   {selectedIntegration.features.map((feature, index) => (
                     <li key={index} className="flex items-center space-x-2">
@@ -776,7 +779,7 @@ export default function IntegrationsPage({ orders, products }: IntegrationsPageP
                   <ul className="text-sm text-red-700 space-y-1 mb-4">
                     <li>• Check your API keys are still valid</li>
                     <li>• Verify webhook URLs are accessible</li>
-                    <li>• Ensure account permissions haven't changed</li>
+                    <li>• Ensure account permissions haven&apos;t changed</li>
                   </ul>
                   <button
                     onClick={() => handleRetryConnection(selectedIntegration)}
@@ -895,7 +898,7 @@ export default function IntegrationsPage({ orders, products }: IntegrationsPageP
                   <h4 className="font-medium text-red-900">Warning</h4>
                 </div>
                 <p className="text-red-800 text-sm">
-                  Disconnecting will stop all data synchronization with {selectedIntegration.name}. You'll need to reconnect to resume integration features.
+                  Disconnecting will stop all data synchronization with {selectedIntegration.name}. You&apos;ll need to reconnect to resume integration features.
                 </p>
               </div>
 

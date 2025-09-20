@@ -21,7 +21,6 @@ interface MaterialsPageProps {
 export default function MaterialsPage({
   currentView,
   onViewChange,
-  materials,
   orders,
   grouped,
   onAdjust,
@@ -31,7 +30,7 @@ export default function MaterialsPage({
 }: MaterialsPageProps) {
   // Search and filter state
   const [searchQuery, setSearchQuery] = useState('')
-  const [sortBy, setSortBy] = useState<'name' | 'quantity' | 'status'>('name')
+  const [sortBy, setSortBy] = useState<'name' | 'quantity' | 'status' | 'color'>('name')
   const [filterBy, setFilterBy] = useState<'all' | 'insufficient' | 'sufficient'>('all')
   const [showFilters, setShowFilters] = useState(false)
   const filterDropdownRef = useRef<HTMLDivElement>(null)
@@ -202,7 +201,7 @@ export default function MaterialsPage({
                         ].map(option => (
                           <button
                             key={option.value}
-                            onClick={() => setSortBy(option.value as any)}
+                            onClick={() => setSortBy(option.value as 'name' | 'color' | 'quantity' | 'status')}
                             className={`w-full text-left px-2 py-1.5 text-sm rounded transition-colors ${
                               sortBy === option.value
                                 ? 'bg-[#444EAA]/10 text-[#444EAA] font-medium'
@@ -226,7 +225,7 @@ export default function MaterialsPage({
                         ].map(option => (
                           <button
                             key={option.value}
-                            onClick={() => setFilterBy(option.value as any)}
+                            onClick={() => setFilterBy(option.value as 'all' | 'insufficient' | 'sufficient')}
                             className={`w-full text-left px-2 py-1.5 text-sm rounded transition-colors ${
                               filterBy === option.value
                                 ? 'bg-[#444EAA]/10 text-[#444EAA] font-medium'

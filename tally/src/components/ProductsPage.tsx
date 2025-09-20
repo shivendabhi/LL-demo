@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import Image from 'next/image'
 import Breadcrumb from './Breadcrumb'
-import type { Product, Design } from '@/types'
+import type { Product, Design, ProductMaterial, ProductDesign } from '@/types'
 
 
 interface ProductsPageProps {
@@ -10,7 +11,7 @@ interface ProductsPageProps {
   onAddDesign: () => void
 }
 
-export default function ProductsPage({ products, designs, onAddProduct, onAddDesign }: ProductsPageProps) {
+export default function ProductsPage({ products, designs, onAddProduct }: ProductsPageProps) {
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isDesignModalOpen, setIsDesignModalOpen] = useState(false)
@@ -364,7 +365,7 @@ export default function ProductsPage({ products, designs, onAddProduct, onAddDes
                           <span>Materials ({product.productMaterials.length})</span>
                         </h4>
                         <div className="space-y-1">
-                          {product.productMaterials.slice(0, 2).map((pm: any) => (
+                          {product.productMaterials.slice(0, 2).map((pm: ProductMaterial) => (
                             <div key={pm.id} className="text-xs bg-blue-50 text-blue-800 px-2.5 py-1.5 rounded border border-blue-200">
                               <div className="font-medium">{pm.material.name}</div>
                               <div className="text-blue-600">Need: {pm.quantityRequired}</div>
@@ -385,7 +386,7 @@ export default function ProductsPage({ products, designs, onAddProduct, onAddDes
                           <span>Designs ({product.productDesigns.length})</span>
                         </h4>
                         <div className="space-y-1">
-                          {product.productDesigns.slice(0, 2).map((pd: any) => (
+                          {product.productDesigns.slice(0, 2).map((pd: ProductDesign) => (
                             <div key={pd.id} className="text-xs bg-purple-50 text-purple-800 px-2.5 py-1.5 rounded border border-purple-200">
                               <div className="font-medium">{pd.design.name}</div>
                               <div className="text-purple-600">{pd.placement}</div>
@@ -440,10 +441,11 @@ export default function ProductsPage({ products, designs, onAddProduct, onAddDes
                     <div className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border border-gray-200 flex items-center justify-center mb-3 group-hover:border-[#444EAA]/30 transition-colors relative overflow-hidden">
                       {design.fileUrl ? (
                         <>
-                          <img
+                          <Image
                             src={design.fileUrl}
                             alt={design.name}
-                            className="w-full h-full object-cover rounded-lg"
+                            fill
+                            className="object-cover rounded-lg"
                           />
                           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg" />
                         </>
@@ -583,7 +585,7 @@ export default function ProductsPage({ products, designs, onAddProduct, onAddDes
             <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
               <p className="text-sm font-medium text-blue-900 mb-2">Materials Required:</p>
               <div className="space-y-1">
-                {selectedProduct.productMaterials.map((pm: any) => (
+                {selectedProduct.productMaterials.map((pm: ProductMaterial) => (
                   <div key={pm.id} className="text-xs text-blue-800 flex justify-between">
                     <span>{pm.material.name}</span>
                     <span className="font-medium">{pm.quantityRequired * orderQuantity}</span>
@@ -824,9 +826,11 @@ export default function ProductsPage({ products, designs, onAddProduct, onAddDes
               <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
                 <p className="text-sm font-medium text-gray-700 mb-2">Preview:</p>
                 <div className="w-full h-32 bg-white rounded border border-gray-200 flex items-center justify-center overflow-hidden">
-                  <img
+                  <Image
                     src={filePreview}
                     alt="Design preview"
+                    width={400}
+                    height={128}
                     className="max-w-full max-h-full object-contain"
                   />
                 </div>

@@ -11,7 +11,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
 
   // Redirect if already logged in
@@ -115,7 +115,7 @@ export default function Login() {
 
             {/* Footer */}
             <p className="text-center text-sm text-gray-700 mt-6 font-inter">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <Link href="/register" className="text-[#444EAA] hover:text-[#444EAA]/80 transition-colors font-medium">
                 Sign up
               </Link>

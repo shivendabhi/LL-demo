@@ -1,4 +1,4 @@
-import type { Material, Order } from '@/types'
+import type { Order } from '@/types'
 
 function classNames(...classes: (string | boolean | undefined)[]) {
   return classes.filter(Boolean).join(" ")

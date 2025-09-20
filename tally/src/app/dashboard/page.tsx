@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { useSession, signOut } from "next-auth/react"
+import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Background from "@/components/Background"
 import Sidebar from "@/components/Sidebar"
@@ -12,167 +12,10 @@ import FulfillmentPage from "@/components/FulfillmentPage"
 import IntegrationsPage from "@/components/IntegrationsPage"
 import AddMaterialModal from "@/components/AddMaterialModal"
 import AddOrderModal from "@/components/AddOrderModal"
-import type { Material, Order, OrderItem, Product, ProductMaterial, ProductDesign, Design } from "@/types"
+import type { Material, Order, Product, Design } from "@/types"
 
 
-function classNames(...classes: (string | boolean | undefined)[]) {
-  return classes.filter(Boolean).join(" ")
-}
 
-function OrderCard({ order, onUpdateStatus }: { order: Order, onUpdateStatus: (id: string, status: string) => void }) {
-  const totalItems = order.orderItems.length
-  const shortageItems = order.orderItems.filter(item => item.material.quantity < item.quantityNeeded).length
-  const hasShortages = shortageItems > 0
-  const totalShortage = order.orderItems.reduce((sum, item) =>
-    sum + Math.max(0, item.quantityNeeded - item.material.quantity), 0
-  )
-
-  const getDueDateColor = (dueDate: string | null) => {
-    if (!dueDate) return "text-gray-500"
-    const due = new Date(dueDate)
-    const today = new Date()
-    const diffDays = Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-
-    if (diffDays < 0) return "text-red-600" // Overdue
-    if (diffDays <= 3) return "text-orange-600" // Due soon
-    if (diffDays <= 7) return "text-yellow-600" // Due this week
-    return "text-gray-500" // Future
-  }
-
-  const getDueDateText = (dueDate: string | null) => {
-    if (!dueDate) return "No due date"
-    const due = new Date(dueDate)
-    const today = new Date()
-    const diffDays = Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-
-    if (diffDays < 0) return `${Math.abs(diffDays)} days overdue`
-    if (diffDays === 0) return "Due today"
-    if (diffDays === 1) return "Due tomorrow"
-    if (diffDays <= 7) return `Due in ${diffDays} days`
-    return due.toLocaleDateString()
-  }
-
-  return (
-    <div className="p-5">
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex-1">
-          <div className="flex items-center justify-between mb-2">
-            <h4 className="font-sans text-base font-semibold text-gray-900 tracking-[-0.01em]">
-              {order.name}
-            </h4>
-            <div className="flex items-center space-x-2">
-              <span className={classNames(
-                "px-2.5 py-1 rounded-full text-xs font-medium",
-                order.status === 'PENDING' ? "bg-yellow-100 text-yellow-800" :
-                order.status === 'IN_PROGRESS' ? "bg-blue-100 text-blue-800" :
-                "bg-green-100 text-green-800"
-              )}>
-                {order.status.replace('_', ' ')}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-4 text-sm text-gray-600 font-inter">
-            <span className={getDueDateColor(order.dueDate)}>
-              {getDueDateText(order.dueDate)}
-            </span>
-            <span>•</span>
-            <span>{totalItems} material{totalItems > 1 ? 's' : ''}</span>
-            {hasShortages && (
-              <>
-                <span>•</span>
-                <span className="text-red-600 font-medium">
-                  {totalShortage} items short
-                </span>
-              </>
-            )}
-          </div>
-        </div>
-
-        <div className="ml-4">
-          {order.status !== 'COMPLETED' && order.status !== 'CANCELLED' && (
-            <button
-              onClick={() => onUpdateStatus(order.id, order.status === 'PENDING' ? 'IN_PROGRESS' : 'COMPLETED')}
-              className={classNames(
-                "px-4 py-2 rounded text-sm font-medium transition-all duration-200 flex items-center space-x-2",
-                order.status === 'PENDING'
-                  ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
-                  : "bg-green-100 text-green-700 hover:bg-green-200"
-              )}
-            >
-              {order.status === 'PENDING' ? (
-                <>
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h8m-9-4V8a3 3 0 016 0v2M7 16a3 3 0 003 3h4a3 3 0 003-3" />
-                  </svg>
-                  <span>Start Order</span>
-                </>
-              ) : (
-                <>
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>Complete</span>
-                </>
-              )}
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Materials Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-        {order.orderItems.map((item) => {
-          const material = item.material
-          const hasEnough = material.quantity >= item.quantityNeeded
-          const shortage = Math.max(0, item.quantityNeeded - material.quantity)
-
-          return (
-            <div key={item.id} className={classNames(
-              "p-3 rounded border",
-              hasEnough
-                ? "bg-green-50 border-green-200"
-                : "bg-red-50 border-red-200"
-            )}>
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
-                    {material.name}
-                  </p>
-                  <p className="text-xs text-gray-600">
-                    {material.color} • Size {material.size}
-                  </p>
-                </div>
-                <div className={classNames(
-                  "w-2 h-2 rounded-full flex-shrink-0",
-                  hasEnough ? "bg-green-500" : "bg-red-500"
-                )}></div>
-              </div>
-
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">
-                  Need: <span className="font-medium text-gray-900">{item.quantityNeeded}</span>
-                </span>
-                <span className={classNames(
-                  "font-medium",
-                  hasEnough ? "text-green-600" : "text-red-600"
-                )}>
-                  Have: {material.quantity}
-                </span>
-              </div>
-
-              {shortage > 0 && (
-                <div className="mt-2 text-xs bg-red-100 text-red-700 px-2 py-1 rounded text-center">
-                  Short: {shortage} units
-                </div>
-              )}
-            </div>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
 
 export default function Dashboard() {
   const { data: session, status } = useSession()
@@ -185,8 +28,6 @@ export default function Dashboard() {
   const [error, setError] = useState<string>("")
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false)
-  const [isProductModalOpen, setIsProductModalOpen] = useState(false)
-  const [isDesignModalOpen, setIsDesignModalOpen] = useState(false)
   const [sidebarHovered, setSidebarHovered] = useState(false)
   const [currentPage, setCurrentPage] = useState<'materials' | 'products' | 'fulfillment' | 'integrations'>('materials')
   const [currentView, setCurrentView] = useState<'inventory' | 'orders'>('inventory')
@@ -238,8 +79,8 @@ export default function Dashboard() {
         if (!designsRes.ok) throw new Error("Failed to load designs")
         const designsData = await designsRes.json()
         setDesigns(designsData.designs)
-      } catch (e: any) {
-        setError(e.message || "Failed to load data")
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : "Failed to load data")
       } finally {
         setLoading(false)
       }
@@ -286,10 +127,10 @@ export default function Dashboard() {
 
       // Update local state
       setOrders((prev) => prev.map((order) =>
-        order.id === orderId ? { ...order, status: newStatus as any } : order
+        order.id === orderId ? { ...order, status: newStatus as Order['status'] } : order
       ))
-    } catch (err: any) {
-      setError(err.message || "Failed to update order")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to update order")
     }
   }
 
@@ -327,8 +168,8 @@ export default function Dashboard() {
       setMaterials((prev) => [data.material as Material, ...prev])
       setIsModalOpen(false)
       resetForm()
-    } catch (err: any) {
-      setError(err.message || "Failed to create material")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to create material")
     } finally {
       setSaving(false)
     }
@@ -356,8 +197,8 @@ export default function Dashboard() {
       setPriority(0)
       setDueDate("")
       setSelectedMaterials([])
-    } catch (err: any) {
-      setError(err.message || "Failed to create order")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to create order")
     }
   }
 
@@ -374,47 +215,6 @@ export default function Dashboard() {
 
   if (!session) return null
 
-  const navigationItems = [
-    {
-      label: "Materials",
-      key: "materials",
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-        </svg>
-      )
-    },
-    {
-      label: "Products",
-      key: "products",
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-        </svg>
-      )
-    },
-    {
-      label: "Fulfillment",
-      key: "fulfillment",
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-        </svg>
-      )
-    },
-  ]
-
-  const integrationItems = [
-    {
-      label: "Integrations",
-      active: false,
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-        </svg>
-      )
-    },
-  ]
 
   return (
     <div className="h-screen w-screen bg-white relative overflow-hidden">
@@ -461,7 +261,7 @@ export default function Dashboard() {
                 products={products}
                 designs={designs}
                 onAddProduct={() => setShowAddProduct(true)}
-                onAddDesign={() => setIsDesignModalOpen(true)}
+                onAddDesign={() => console.log('Add design clicked')}
               />
             )}
 

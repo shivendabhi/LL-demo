@@ -1,10 +1,10 @@
-import NextAuth, { type NextAuthOptions } from "next-auth"
+import NextAuth from "next-auth/next"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 
-export const authOptions: NextAuthOptions = {
+export const authOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
@@ -45,25 +45,23 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   session: {
-    strategy: "jwt"
+    strategy: "jwt" as const
   },
   pages: {
     signIn: "/login",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user }: { token: unknown; user?: unknown }) {
       if (user) {
-        // @ts-expect-error augment at runtime
-        token.id = user.id
+        (token as { id?: string }).id = (user as { id: string }).id
       }
-      return token
+      return token as { id?: string; [key: string]: unknown }
     },
-    async session({ session, token }) {
-      if (token) {
-        // @ts-expect-error augment at runtime
-        session.user.id = token.id as string
+    async session({ session, token }: { session: unknown; token: unknown }) {
+      if (token && (session as { user?: unknown }).user) {
+        ((session as { user: { id?: string } }).user as { id?: string }).id = (token as { id?: string }).id
       }
-      return session
+      return session as { user?: { id?: string; name?: string | null; email?: string | null; image?: string | null }; expires: string }
     },
   },
 }
