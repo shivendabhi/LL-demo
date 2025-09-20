@@ -49,6 +49,7 @@ export const authOptions = {
   },
   pages: {
     signIn: "/login",
+    signOut: "/",
   },
   callbacks: {
     async jwt({ token, user }: { token: unknown; user?: unknown }) {
