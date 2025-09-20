@@ -48,6 +48,9 @@ model User {
   accounts      Account[]
   sessions      Session[]
   materials     Material[]
+  orders        Order[]
+  products      Product[]
+  designs       Design[]
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
@@ -63,17 +66,131 @@ model VerificationToken {
 }
 
 model Material {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name      String
-  color     String?
-  size      String?
-  quantity  Int      @default(0)
-  packSize  Int      @default(24) @map("pack_size")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id               String            @id @default(cuid())
+  userId           String
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name             String
+  color            String?
+  size             String?
+  quantity         Int               @default(0)
+  packSize         Int               @default(24) @map("pack_size")
+  orderItems       OrderItem[]
+  productMaterials ProductMaterial[]
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
 
   @@index([userId])
   @@map("materials")
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  status      OrderStatus @default(PENDING)
+  priority    Int?        @default(0)
+  dueDate     DateTime?   @map("due_date")
+  orderItems  OrderItem[]
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([status])
+  @@map("orders")
+}
+
+model OrderItem {
+  id             String   @id @default(cuid())
+  orderId        String   @map("order_id")
+  order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  materialId     String   @map("material_id")
+  material       Material @relation(fields: [materialId], references: [id], onDelete: Cascade)
+  quantityNeeded Int      @map("quantity_needed")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@index([orderId])
+  @@index([materialId])
+  @@map("order_items")
+}
+
+enum OrderStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model Product {
+  id              String            @id @default(cuid())
+  userId          String            @map("user_id")
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name            String
+  description     String?
+  price           Float?
+  sku             String?
+  category        String?
+  isActive        Boolean           @default(true) @map("is_active")
+  productMaterials ProductMaterial[]
+  productDesigns  ProductDesign[]
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([category])
+  @@map("products")
+}
+
+model Design {
+  id             String          @id @default(cuid())
+  userId         String          @map("user_id")
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name           String
+  description    String?
+  fileUrl        String?         @map("file_url")
+  fileName       String?         @map("file_name")
+  fileSize       Int?            @map("file_size")
+  mimeType       String?         @map("mime_type")
+  tags           String?         // JSON array of tags
+  isActive       Boolean         @default(true) @map("is_active")
+  productDesigns ProductDesign[]
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("designs")
+}
+
+model ProductMaterial {
+  id               String   @id @default(cuid())
+  productId        String   @map("product_id")
+  product          Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  materialId       String   @map("material_id")
+  material         Material @relation(fields: [materialId], references: [id], onDelete: Cascade)
+  quantityRequired Int      @map("quantity_required")
+  notes            String?
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@index([productId])
+  @@index([materialId])
+  @@map("product_materials")
+}
+
+model ProductDesign {
+  id        String   @id @default(cuid())
+  productId String   @map("product_id")
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  designId  String   @map("design_id")
+  design    Design   @relation(fields: [designId], references: [id], onDelete: Cascade)
+  placement String?  // e.g., "front", "back", "left chest"
+  sizeInfo  String?  @map("size_info") // e.g., "5x5 inches"
+  notes     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([productId])
+  @@index([designId])
+  @@map("product_designs")
 }
